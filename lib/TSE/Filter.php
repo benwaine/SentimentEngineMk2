@@ -30,6 +30,8 @@ class TSE_Filter
 
         $result = $this->applyClassification($tokens);
 
+        return $result;
+
     }
 
     protected function applyClassification($tokens)
@@ -49,7 +51,7 @@ class TSE_Filter
 
                 if($this->probArray[$token][self::CONTEXT_NEG] > 0)
                 {
-                    $posProbs[] = $this->probArray[$token][self::CONTEXT_NEG];
+                    $negProbs[] = $this->probArray[$token][self::CONTEXT_NEG];
                 }
             }
         }
@@ -66,6 +68,8 @@ class TSE_Filter
             });
 
             $posMinusArProd = array_product($posMinusAr);
+
+            var_dump($posMult, $posMinusArProd);
 
             $probOfPos = $posMult / $posMult + $posMinusArProd;
         }
@@ -97,7 +101,7 @@ class TSE_Filter
        
         // prob of Negative
 
-        return array(self::CONTEXT_POS => $probOfPos, self::CONTEXT_NEG);
+        return array(self::CONTEXT_POS => $probOfPos, self::CONTEXT_NEG => $probOfNeg);
     }
 
 

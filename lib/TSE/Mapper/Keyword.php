@@ -66,6 +66,19 @@ class TSE_Mapper_keyword extends TSE_Mapper_Abstract
 
     }
 
+    public function getKeywordsAsText()
+    {
+        $sql = "SELECT keyword FROM keyword";
+
+        $stmt = $this->pdo->prepare($sql);
+
+        $stmt->execute();
+
+        $result = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        return $result;
+    }
+
 
     
 

@@ -6,7 +6,7 @@
  * @subpackage
  * @author Ben Waine <ben@ben-waine.co.uk>
  */
-class TSE_Sampler
+class TSE_Sampler implements TSE_Log_Loggable
 {
     protected $username;
 
@@ -23,9 +23,16 @@ class TSE_Sampler
      */
     protected $transport;
 
+    /**
+     * Logger
+     *
+     * @var TSE_Log_Logger
+     */
+    protected $log;
+
     const LANG_EN = 'en';
 
-    const RPP = 50;
+    const RPP = 100;
 
     const CONTEXT_POS = 1;
 
@@ -43,6 +50,16 @@ class TSE_Sampler
     {
         $this->twitterUrl = $config['twitterSearchUrl'];
         $this->transport = $transport;
+    }
+
+    public function attachLogger(TSE_Log_Logger $logger)
+    {
+        $this->log = $logger;
+    }
+
+    public function loggerAttached()
+    {
+        return (isset($this->log));
     }
 
     public function getSample($term, $size)
@@ -81,6 +98,11 @@ class TSE_Sampler
         $this->transport->setUri($url);
         $this->transport->setMethod(Zend_Http_Client::GET);
 
+        if($this->loggerAttached())
+        {
+            $this->log->info('Querying Twitter On: ' . $url);
+        }
+
         $result = $this->transport->request();
 
         return $this->handleResult($result, $url);
@@ -88,6 +110,12 @@ class TSE_Sampler
 
     protected function handleResult(Zend_Http_Response $result, $url)
     {
+        
+        if($this->loggerAttached())
+        {
+            $this->log->info('Twitter Response: ' . $result->getStatus());
+        }
+
         switch($result->getStatus())
         {
             case '500':

@@ -6,7 +6,7 @@
  * @subpackage
  * @author Ben Waine <ben@ben-waine.co.uk>
  */
-class TSE_FilterGenerator
+class TSE_FilterGenerator implements TSE_Log_Loggable
 {
     /**
      * Tokenizer 
@@ -41,7 +41,7 @@ class TSE_FilterGenerator
         $countArray = array('sample_size_pos' => count($tokens[self::CONTEXT_POS]),
                             'sample_size_neg' => count($tokens[self::CONTEXT_NEG]));
 
-        
+
         $probs = $this->createWordProbs($tokens);
 
         array_unshift($probs, $countArray);
@@ -56,6 +56,8 @@ class TSE_FilterGenerator
 
         $this->wordCount($wcArray, $words, self::CONTEXT_POS);
         $this->wordCount($wcArray, $words, self::CONTEXT_NEG);
+
+        TSE_Debug_FilterMapper::samplerToDb($words);
 
         $wordProbs = $this->wordsToProbabilities($words, count($wcArray[self::CONTEXT_POS]), count($wcArray[self::CONTEXT_NEG]));
 
@@ -95,10 +97,22 @@ class TSE_FilterGenerator
                     $words[$word] = ($context == self::CONTEXT_POS) ? array(self::CONTEXT_POS => 1, self::CONTEXT_NEG => 0)
                                                                     : array(self::CONTEXT_POS => 0, self::CONTEXT_NEG => 1);
                 }
+
+                $wordsInMsg[] = $word;
             }
 
             $wordsInMsg = null;
         }
+    }
+
+    public function attachLogger(TSE_Log_Logger $logger)
+    {
+        $this->log = $log;
+    }
+
+    public function loggerAttached()
+    {
+        return (isset($this->log));
     }
 }
 

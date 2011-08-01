@@ -1,4 +1,11 @@
 <?php
+require_once '../setup.php';
+
+$db = $bootstrap->getResource('db');
+$log = $bootstrap->getResource('log');
+$configAr = $bootstrap->getOptions();
+
+$log->info('Opening Lan > Que');
 
 $context = new ZMQContext();
 

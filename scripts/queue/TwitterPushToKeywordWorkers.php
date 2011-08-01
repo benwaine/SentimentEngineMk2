@@ -1,7 +1,10 @@
 <?php
-require_once '../bootstrap.php';
+require_once '../setup.php';
 
-$config = new Zend_Config_Ini(realpath('../config/tokenizer.ini'), 'search');
+$db = $bootstrap->getResource('db');
+$configAr = $bootstrap->getOptions();
+
+$config = new Zend_Config_Ini(realpath('../../config/tokenizer.ini'), 'search');
 
 $tokenizer = new TSE_Tokenizer($config->toArray());
 
@@ -14,6 +17,8 @@ $reciever->connect('tcp://localhost:5561');
 $publisher = new ZMQSocket($context, ZMQ::SOCKET_PUSH);
 $publisher->bind("tcp://*:5563");
 
+$c = 0;
+
 while(true)
 {
     $msg = $reciever->recv();
@@ -22,12 +27,15 @@ while(true)
 
     $watched = array('holiday');
 
-    $tokens = $tokenizer->tokenizse($msg);
+    $tokens = $tokenizer->tokenizse($ar['text']);
+    echo ++$c . ' : ' . $msg . "\n";
 
     foreach($watched as $watch)
     {
         if(in_array($watch, $tokens))
         {   
+
+            echo ' s ';
             $publisher->send($watch, ZMQ::MODE_SNDMORE);
             $publisher->send($msg);
         }
